@@ -292,14 +292,37 @@ xgb_cv <- xgb.cv(data = train_xgb_fc, label = as.numeric(as.factor(train_fc$spec
        nrounds = 100, early_stopping_rounds = 10)
 print(xgb_cv)
 
-xgb.plot.importance(xgb.importance(fit_xgb_fc$finalModel$feature_names, model = fit_xgb_fc$finalModel))
-
 xgb_fc_imp <- xgb.importance(fit_xgb_fc$finalModel$feature_names, model = fit_xgb_fc$finalModel)
 
-ggplot(xgb_fc_imp, aes(x = reorder(Feature, Gain), y = Gain)) +
-  geom_col() +
+eFC_imp_plot <- tibble(xgb_fc_imp) %>%
+  mutate(Feature = case_when(
+    Feature == "returner_x" ~ "Returner X Coordinate",
+    Feature == "dist_to_punt_xloc" ~ "Returner Dist. to Expected Punt Land Loc.",
+    Feature == "x_2" ~ "2nd Nearest Defender X Location",
+    Feature == "y_1" ~ "Nearest Defender Y Coordinate",
+    Feature == "y_2" ~ "2nd Nearest Defender Y Coordinate",
+    Feature == "returner_y" ~ "Returner Y Location",
+    Feature == "returner_dir" ~ "Returner Direction",
+    Feature == "returner_o" ~ "Returner Orientation",
+    Feature == "returner_s" ~ "Returner Speed",
+    Feature == "s_2" ~ "2nd Defender Speed",
+    Feature == "s_1" ~ "Nearest Defender Speed",
+    Feature == "x_1" ~ "Nearest Defender X Location",
+    Feature == "voronoi_area" ~ "Returner Voronoi Area",
+    Feature == "returner_a" ~ "Returner Acceleration",
+    Feature == "frame" ~ "Frames Since Kick",
+    Feature == "def1_dist" ~ "Nearest Defender Dist. to Returner",
+    Feature == "def2_dist" ~ "2nd Nearest Defender Dist. to Returner"
+  )) %>%
+  na.omit() %>%
+  ggplot(., aes(reorder(Feature, Gain), Gain)) +
+  geom_col(fill = pal[1], alpha = .9) +
   coord_flip() +
-  theme_bw()
+  theme_bw() +
+  labs(x = NULL,
+       title = "Feature Importance for Return Decision XGBoost Classifier")
+
+ggsave(eFC_imp_plot, filename = "eFC_imp_plot.png", width = 10, height = 4)
 
 pred_xgb_fc <- predict(fit_xgb_fc, test_xgb_fc)
 pred_xgb_fc_probs <- predict(fit_xgb_fc, test_xgb_fc, type = "prob")

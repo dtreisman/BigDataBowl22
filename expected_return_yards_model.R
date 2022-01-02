@@ -204,8 +204,23 @@ fit_xgb <- caret::train(
 )
 
  
-xgb.plot.importance(xgb.importance(fit_xgb$finalModel$feature_names, model = fit_xgb$finalModel))
+eRY_imp_plot <- tibble(xgb.importance(fit_xgb$finalModel$feature_names, model = fit_xgb$finalModel)) %>%
+  mutate(Feature = case_when(
+    Feature == "def1_dist" ~ "Nearest Defender Dist. to Returner",
+    Feature == "voronoi_area" ~ "Voronoi Area of Returner",
+    Feature == "def2_dist" ~ "2nd Nearest Defender Dist. to Returner",
+    Feature == "returner_y" ~ "Returner Y Coordinate",
+    Feature == "s_1" ~ "Nearest Defender Speed",
+    Feature == "frame" ~ "Frames Since Kick",
+  )) %>%
+  ggplot(., aes(reorder(Feature, Gain), Gain)) +
+  geom_col(fill = pal[1], alpha = .9) +
+  coord_flip() +
+  theme_bw() +
+  labs(x = NULL,
+       title = "Feature Importance for Expected Return Yards XGBoost Model")
 
+ggsave(eRY_imp_plot, filename = "eRY_imp_plot.png", width = 10, height = 4)
 
 
 pred_xgb <- predict(fit_xgb, test_xgb)

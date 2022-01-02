@@ -39,7 +39,7 @@ filter(event_group == "punt") %>%
                                       0 - punt_bounce_dist,
                                       kick_return_yardage),
          kick_return_yardage = ifelse(special_teams_result == "Touchback", 
-                                      25 - round(110-x_punt_land),
+                                      20 - round(110-x_punt_land),
                                       kick_return_yardage)) %>%
   select(-nfl_id.y) %>%
   rename(nfl_id = nfl_id.x) %>%
