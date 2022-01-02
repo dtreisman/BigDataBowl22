@@ -35,6 +35,7 @@ filter(event_group == "punt") %>%
   filter(frame_id == max(frame_id)) %>%
   padr::fill_by_value(kick_return_yardage, 0) %>%
   left_join(df_puntBounces) %>%
+  filter(x_punt_land < 110 | is.na(x_punt_land)) %>%
   mutate(kick_return_yardage = ifelse(special_teams_result == "Downed", 
                                       0 - punt_bounce_dist,
                                       kick_return_yardage),
